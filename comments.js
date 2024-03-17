@@ -1,55 +1,80 @@
-// create web server 
-// create a route for comments
-// create a route for comments/new
-// create a route for comments/:id
-// create a route for comments/:id/edit
-// create a route for comments/:id/delete
-// create a route for comments/:id/put
-// create a route for comments/:id/patch
-// create a route for comments/:id/delete
-// export the router
-// export the comments route
-// export the comments/new route
-// export the comments/:id route
-// export the comments/:id/edit route
-// export the comments/:id/delete route
-// export the comments/:id/put route
-// export the comments/:id/patch route
-// export the comments/:id/delete route
+// create web server
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var fs = require('fs');
+var path = require('path');
+var commentsPath = path.join(__dirname, 'comments.json');
 
-const express = require('express');
-const router = express.Router();
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 
-router.get('/', (req, res) => {
-    res.send('Comments');
+// parse application/json
+app.use(bodyParser.json());
+
+// serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// get comments
+app.get('/comments', function(req, res) {
+  fs.readFile(commentsPath, 'utf8', function(err, data) {
+    if (err) {
+      res.send('[]');
+    } else {
+      res.send(data);
+    }
+  });
 });
 
-router.get('/new', (req, res) => {
-    res.send('New Comment');
+// add comment
+app.post('/comments', function(req, res) {
+  fs.readFile(commentsPath, 'utf8', function(err, data) {
+    if (err) {
+      res.send('[]');
+    } else {
+      var comments = JSON.parse(data);
+      comments.push(req.body);
+      fs.writeFile(commentsPath, JSON.stringify(comments), function(err) {
+        if (err) {
+          res.send('[]');
+        } else {
+          res.send(comments);
+        }
+      });
+    }
+  });
 });
 
-router.get('/:id', (req, res) => {
-    res.send('Comment');
+// start server
+app.listen(3000, function() {
+  console.log('Server is running on port 3000');
 });
+```
 
-router.get('/:id/edit', (req, res) => {
-    res.send('Edit Comment');
-});
+comments.json
+```json
+[]
+```
 
-router.get('/:id/delete', (req, res) => {
-    res.send('Delete Comment');
-});
-
-router.put('/:id', (req, res) => {
-    res.send('Put Comment');
-});
-
-router.patch('/:id', (req, res) => {
-    res.send('Patch Comment');
-});
-
-router.delete('/:id', (req, res) => {
-    res.send('Delete Comment');
-});
-
-module.exports = router;    
+public/index.html
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Comment Box</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <h1>Comment Box</h1>
+  <div id="commentBox"></div>
+  <form id="commentForm">
+    <input type="text" id="author" placeholder="Your name" required>
+    <input type="text" id="text" placeholder="Say something..." required>
+    <input type="submit" value="Post">
+  </form>
+  <script src="http://fb.me/react-0.13.3.js"></script>
+  <script src="http://fb.me/JSXTransformer-0.13.3.js"></script>
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/jsx" src
