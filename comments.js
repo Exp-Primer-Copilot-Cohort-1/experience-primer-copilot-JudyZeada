@@ -1,23 +1,35 @@
-// create web server
+// Create web server
+var express = require('express');
+var app = express();
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-app.use(bodyParser.json());
+// Set up the server
+app.use(express.static('public'));
 
-const comments = {};
+// Set up the data
+var comments = [
+    {name: "John", msg: "Hello, World!"},
+    {name: "Mary", msg: "How are you?"}
+];
 
-app.get('/posts/:id/comments', (req, res) => {
-  res.send(comments[req.params.id] || []);
+// Set up the routes
+app.get('/comments', function(req, res) {
+    res.json(comments);
 });
 
-app.post('/posts/:id/comments', (req, res) => {
-  const id = Math.floor(Math.random() * 1000);
-  const { content } = req.body;
+app.get('/add', function(req, res) {
+    var name = req.query.name;
+    var msg = req.query.msg;
+    comments.push({name: name, msg: msg});
+    res.send("Add comment: " + name + " " + msg);
+});
 
-  if (!comments[req.params.id]) {
-    comments[req.params.id] = [];
-  }
-  comments[req.params.id].push({ id, content });
-  res.status(201).send(comments[req.params.id]);
+app.get('/delete', function(req, res) {
+    var index = req.query.index;
+    comments.splice(index, 1);
+    res.send("Delete comment: " + index);
+});
+
+// Start the server
+app.listen(3000, function() {
+    console.log('Server is running on port 3000');
 });
