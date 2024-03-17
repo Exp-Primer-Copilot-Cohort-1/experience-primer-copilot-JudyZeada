@@ -21,7 +21,3 @@ app.post('/posts/:id/comments', (req, res) => {
   comments[req.params.id].push({ id, content });
   res.status(201).send(comments[req.params.id]);
 });
-
-app.listen(4001, () => {
-  console.log('Listening on 4001');
-});
